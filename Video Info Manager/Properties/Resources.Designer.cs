@@ -59,5 +59,15 @@ namespace Video_Info_Manager.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon VideoInfoManagerIcon {
+            get {
+                object obj = ResourceManager.GetObject("VideoInfoManagerIcon", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
     }
 }

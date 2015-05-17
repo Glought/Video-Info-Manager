@@ -1,0 +1,10 @@
+V1.0.1
+
+ *Added a warning message that empty textboxes isn't allowed
+ *Added a YesNo message box asking you if you are sure you want to delete the selected item.
+ *Window location is now saved.
+
+
+V1.0.0
+
+First verison.

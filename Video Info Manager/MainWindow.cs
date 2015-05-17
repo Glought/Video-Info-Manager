@@ -90,8 +90,14 @@ namespace Video_Info_Manager
 
         private void deleteButton_Click(object sender, EventArgs e)
         {
-            fromJson.Remove((VideoInfo)videoTagsAndDescriptionListBox.SelectedItem);
-            WriteToJsonFile();
+            MessageBoxButtons buttons = MessageBoxButtons.YesNo;
+            DialogResult areYouSure = MessageBox.Show("Are you want to delete the selected item?", "Are you sure?", buttons);
+
+            if (areYouSure == System.Windows.Forms.DialogResult.Yes)
+            {
+                fromJson.Remove((VideoInfo)videoTagsAndDescriptionListBox.SelectedItem);
+                WriteToJsonFile();
+            }
         }
 
         private void editButton_Click(object sender, EventArgs e)
@@ -106,8 +112,15 @@ namespace Video_Info_Manager
 
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e)
         {
+            Properties.Settings.Default.Location = Location;
+
             WriteToJsonFile();
             Properties.Settings.Default.Save();
+        }
+
+        private void MainWindow_Load(object sender, EventArgs e)
+        {
+            Location = Properties.Settings.Default.Location;
         }
     }
 }
