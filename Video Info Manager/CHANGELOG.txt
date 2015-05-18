@@ -1,3 +1,10 @@
+V1.0.2
+ 
+ *I have changed the way "VideoInfo.Json" is created if the file is missing it will create it with dummy data.
+ 
+ *I have fixed some errors that can crash the program when clicking on "Edit,Delete,Copy Tags,and Copy Description"
+   *when selecting nothing.
+
 V1.0.1
 
  *Added a warning message that empty textboxes isn't allowed

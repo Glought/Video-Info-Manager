@@ -31,34 +31,42 @@ namespace Video_Info_Manager
         public MainWindow()
         {
             InitializeComponent();
-
-            if (Properties.Settings.Default.FirstRun)
+            // It first tries to read from the file but its not found it creates it then writes dummy data.
+            // then reads from the file then sets the list box's datasource
+            try
             {
-                List<VideoInfo> dummyJson;
-                WriteToJsonFile();
-                dummyJson = new List<VideoInfo> { };
-
-                VideoInfo newDummyData = new VideoInfo();
-                newDummyData.Name = "This is Dummy Data Feel free to delete.";
-                newDummyData.Description = "Dummy Descripion.";
-                newDummyData.Tags = "Dummy Tags";
-
-                dummyJson.Add(newDummyData);
-                File.WriteAllText(@"VideoInfo.json", JsonConvert.SerializeObject(dummyJson, Formatting.Indented));
-                rebindData();
-                Properties.Settings.Default.FirstRun = false;
-                Properties.Settings.Default.Save();
+                fromJson = JsonConvert.DeserializeObject<List<VideoInfo>>(File.ReadAllText(@"VideoInfo.json"));
+                videoTagsAndDescriptionListBox.DataSource = fromJson;
             }
-
-            fromJson = JsonConvert.DeserializeObject<List<VideoInfo>>(File.ReadAllText(@"VideoInfo.json"));
-
-            videoTagsAndDescriptionListBox.DataSource = fromJson;
+            catch (FileNotFoundException)
+            {
+                WriteToJsonFile();
+                WriteDummyData();
+                fromJson = JsonConvert.DeserializeObject<List<VideoInfo>>(File.ReadAllText(@"VideoInfo.json"));
+                videoTagsAndDescriptionListBox.DataSource = fromJson;
+            }
         }
 
         public void rebindData()
         {
             videoTagsAndDescriptionListBox.DataSource = null;
             videoTagsAndDescriptionListBox.DataSource = fromJson;
+        }
+
+        public void WriteDummyData()
+        {
+            List<VideoInfo> dummyJson;
+            WriteToJsonFile();
+            dummyJson = new List<VideoInfo> { };
+
+            VideoInfo newDummyData = new VideoInfo();
+            newDummyData.Name = "This is Dummy Data Feel free to delete.";
+            newDummyData.Description = "Dummy Descripion.";
+            newDummyData.Tags = "Dummy Tags";
+
+            dummyJson.Add(newDummyData);
+            File.WriteAllText(@"VideoInfo.json", JsonConvert.SerializeObject(dummyJson, Formatting.Indented));
+            rebindData();
         }
 
         public void WriteToJsonFile()
@@ -78,35 +86,48 @@ namespace Video_Info_Manager
 
         private void copyDescriptionButton_Click(object sender, EventArgs e)
         {
-            VideoInfo videoDescription = (VideoInfo)videoTagsAndDescriptionListBox.SelectedItem;
-            Clipboard.SetText(videoDescription.Description.ToString());
+            if (videoTagsAndDescriptionListBox.SelectedItem != null)
+            {
+                VideoInfo videoDescription = (VideoInfo)videoTagsAndDescriptionListBox.SelectedItem;
+                Clipboard.SetText(videoDescription.Description.ToString());
+            }
         }
 
         private void copyTagsButton_Click(object sender, EventArgs e)
         {
-            VideoInfo videoTags = (VideoInfo)videoTagsAndDescriptionListBox.SelectedItem;
-            Clipboard.SetText(videoTags.Tags.ToString());
+            if (videoTagsAndDescriptionListBox.SelectedItem != null)
+            {
+                VideoInfo videoTags = (VideoInfo)videoTagsAndDescriptionListBox.SelectedItem;
+                Clipboard.SetText(videoTags.Tags.ToString());
+            }
         }
 
         private void deleteButton_Click(object sender, EventArgs e)
         {
-            MessageBoxButtons buttons = MessageBoxButtons.YesNo;
-            DialogResult areYouSure = MessageBox.Show("Are you want to delete the selected item?", "Are you sure?", buttons);
-
-            if (areYouSure == System.Windows.Forms.DialogResult.Yes)
+            if (videoTagsAndDescriptionListBox.SelectedItem != null)
             {
-                fromJson.Remove((VideoInfo)videoTagsAndDescriptionListBox.SelectedItem);
-                WriteToJsonFile();
+                MessageBoxButtons buttons = MessageBoxButtons.YesNo;
+                DialogResult areYouSure = MessageBox.Show("Are you want to delete the selected item?", "Are you sure?", buttons);
+
+                if (areYouSure == System.Windows.Forms.DialogResult.Yes)
+                {
+                    fromJson.Remove((VideoInfo)videoTagsAndDescriptionListBox.SelectedItem);
+                    WriteToJsonFile();
+                }
             }
         }
 
         private void editButton_Click(object sender, EventArgs e)
         {
             VideoInfo videoEdit = (VideoInfo)videoTagsAndDescriptionListBox.SelectedItem;
-            AddandEditDialog editDialog = new AddandEditDialog(this, videoEdit.Name.ToString(), videoEdit.Description.ToString(), videoEdit.Tags.ToString());
-            if (editDialog.Created == false)
+
+            if (videoTagsAndDescriptionListBox.SelectedItem != null)
             {
-                editDialog.ShowDialog();
+                AddandEditDialog editDialog = new AddandEditDialog(this, videoEdit.Name.ToString(), videoEdit.Description.ToString(), videoEdit.Tags.ToString());
+                if (editDialog.Created == false)
+                {
+                    editDialog.ShowDialog();
+                }
             }
         }
 
