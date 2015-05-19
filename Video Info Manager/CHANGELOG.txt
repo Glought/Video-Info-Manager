@@ -1,3 +1,8 @@
+V1.0.3.0
+  * Cleaned up how "VideoInfo.Json" is made.
+  * Added a UpdateNotifier
+    * A Update window should open when there is a new update.
+
 V1.0.2
  
  *I have changed the way "VideoInfo.Json" is created if the file is missing it will create it with dummy data.

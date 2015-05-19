@@ -17,22 +17,30 @@
 */
 
 using Newtonsoft.Json;
+using SimpleUpdateNotifierLibrary;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace Video_Info_Manager
 {
     public partial class MainWindow : Form
     {
-        public List<VideoInfo> fromJson;
+        public List<VideoInfo> fromJson { get; private set; }
+
+        private string changeLogUrl = "http://raw.githubusercontent.com/Glought/Video-Info-Manager/master/Video%20Info%20Manager/CHANGELOG.txt";
+        private string DownloadSiteUrl = "http://github.com/Glought/Video-Info-Manager/releases";
+        private string installedVersion = "1.0.3.0";
+        private string projectUpdateXml = "http://raw.githubusercontent.com/Glought/Video-Info-Manager/master/Video%20Info%20Manager/VideoInfoManager.xml";
 
         public MainWindow()
         {
             InitializeComponent();
-            // It first tries to read from the file but its not found it creates it then writes dummy data.
+            // It first tries to read from the file but its not found it creates it with dummy data.
             // then reads from the file then sets the list box's datasource
+
             try
             {
                 fromJson = JsonConvert.DeserializeObject<List<VideoInfo>>(File.ReadAllText(@"VideoInfo.json"));
@@ -40,7 +48,6 @@ namespace Video_Info_Manager
             }
             catch (FileNotFoundException)
             {
-                WriteToJsonFile();
                 WriteDummyData();
                 fromJson = JsonConvert.DeserializeObject<List<VideoInfo>>(File.ReadAllText(@"VideoInfo.json"));
                 videoTagsAndDescriptionListBox.DataSource = fromJson;
@@ -55,17 +62,16 @@ namespace Video_Info_Manager
 
         public void WriteDummyData()
         {
-            List<VideoInfo> dummyJson;
-            WriteToJsonFile();
-            dummyJson = new List<VideoInfo> { };
+            string dummy = @"[
+                {
+                'Description': 'Dummy Descripion.',
+                'Name': 'This is Dummy Data Feel free to delete.',
+                'Tags': 'Dummy Tags'
+                }
+               ]";
 
-            VideoInfo newDummyData = new VideoInfo();
-            newDummyData.Name = "This is Dummy Data Feel free to delete.";
-            newDummyData.Description = "Dummy Descripion.";
-            newDummyData.Tags = "Dummy Tags";
+            File.WriteAllText(@"VideoInfo.json", dummy);
 
-            dummyJson.Add(newDummyData);
-            File.WriteAllText(@"VideoInfo.json", JsonConvert.SerializeObject(dummyJson, Formatting.Indented));
             rebindData();
         }
 
@@ -142,6 +148,16 @@ namespace Video_Info_Manager
         private void MainWindow_Load(object sender, EventArgs e)
         {
             Location = Properties.Settings.Default.Location;
+
+            SimpleUpdateNotifier updateCheck = new SimpleUpdateNotifier(projectUpdateXml, changeLogUrl, DownloadSiteUrl, installedVersion);
+
+            Thread oUpdateNotifier = new Thread(new ThreadStart(updateCheck.StartUpdateCheck));
+
+            oUpdateNotifier.Start();
+
+            while (!oUpdateNotifier.IsAlive) ;
+
+            Thread.Sleep(1000);
         }
     }
 }
