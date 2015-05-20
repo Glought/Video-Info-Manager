@@ -23,7 +23,7 @@ namespace Video_Info_Manager
 {
     public partial class AddandEditDialog : Form
     {
-        public bool IsEdit;
+        private bool IsEdit;
         private MainWindow main;
 
         public AddandEditDialog(MainWindow mainForm)
